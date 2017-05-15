@@ -51,12 +51,11 @@ namespace Cropper
                 var drags = dragStarts
                     .SelectMany(x => moves
                         .TakeUntil(releases)
-                        .Select(y => MoveTarget(dropCoords, new Drag(x, y))))
+                        .Select(y => NewCoords(dropCoords, new Drag(x, y))))
                     .DistinctUntilChanged();
 
                 var dropSub = drags.Sample(releases)
-                    .Do(x => { dropCoords = x; })
-                    .Subscribe();
+                    .Subscribe(x => { dropCoords = x; });
 
                 var dragSub = drags
                     .Subscribe(observer);
@@ -65,7 +64,7 @@ namespace Cropper
             });
         }
 
-        static Rect MoveTarget(Rect current, Drag delta)
+        static Rect NewCoords(Rect current, Drag delta)
         {
             double diag;
             switch (delta.Start.DragType)
