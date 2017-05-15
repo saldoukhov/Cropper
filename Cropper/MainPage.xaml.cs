@@ -48,18 +48,17 @@ namespace Cropper
                     .Where(x => x.EventType == MouseEventType.Move)
                     .Select(x => x.Coords);
 
-                var dropSub = dragStarts
-                    .SelectMany(x => releases
-                        .Take(1)
-                        .Select(y => MoveTarget(dropCoords, new Drag(x, y))))
-                    .Do(x => { dropCoords = x; })
-                    .Subscribe();
-
-                var dragSub = dragStarts
+                var drags = dragStarts
                     .SelectMany(x => moves
                         .TakeUntil(releases)
                         .Select(y => MoveTarget(dropCoords, new Drag(x, y))))
-                    .DistinctUntilChanged()
+                    .DistinctUntilChanged();
+
+                var dropSub = drags.Sample(releases)
+                    .Do(x => { dropCoords = x; })
+                    .Subscribe();
+
+                var dragSub = drags
                     .Subscribe(observer);
 
                 return new CompositeDisposable(dragSub, dropSub); 
