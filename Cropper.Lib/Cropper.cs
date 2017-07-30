@@ -25,18 +25,17 @@ namespace Cropper.Lib
                     .Where(x => x.EventType == CropHelper.MouseEventType.Move)
                     .Select(x => x.Coords);
 
-                var dropSub = dragStarts
-                    .SelectMany(x => releases
-                        .Take(1)
-                        .Select(y => MoveTarget(dropCoords, new Drag(x, y))))
-                    .Do(x => { dropCoords = x; })
-                    .Subscribe();
-
-                var dragSub = dragStarts
+                var drags = dragStarts
                     .SelectMany(x => moves
                         .TakeUntil(releases)
-                        .Select(y => MoveTarget(dropCoords, new Drag(x, y))))
-                    .DistinctUntilChanged()
+                        .Select(y => NewCoords(dropCoords, new Drag(x, y))))
+                    .DistinctUntilChanged();
+
+                var dropSub = drags
+                    .Sample(releases)
+                    .Subscribe(x => { dropCoords = x; });
+
+                var dragSub = drags
                     .Subscribe(observer);
 
                 return new CompositeDisposable(dragSub, dropSub);
@@ -96,7 +95,7 @@ namespace Cropper.Lib
             }
         }
 
-        static SKRect MoveTarget(SKRect current, Drag drag)
+        static SKRect NewCoords(SKRect current, Drag drag)
         {
             float diag;
             switch (drag.Start.DragType)
@@ -155,11 +154,12 @@ namespace Cropper.Lib
             IObservable<MouseEvent> mouseEvents,
             Func<IObservable<SKCanvas>> canvasSelector)
         {
-            return 
-                from rect in CropCalculator.SelectRectangle(mouseEvents)
-                from canvas in canvasSelector().Do(canvas => DrawCropArea(rect, canvas))
-                select rect;
+            return CropCalculator
+                .SelectRectangle(mouseEvents)
+                .Select(rect => canvasSelector()
+                    .Do(canvas => DrawCropArea(rect, canvas))
+                    .Select(_ => rect))
+                .Switch();
         }
-        
     }
 }
