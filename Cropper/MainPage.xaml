@@ -5,6 +5,7 @@
     xmlns:local="using:Cropper"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:uwp="using:SkiaSharp.Views.UWP"
     mc:Ignorable="d"
     x:Name="page"
     >
@@ -26,30 +27,23 @@
             <RowDefinition
                 Height="*" />
         </Grid.RowDefinitions>
-        <Canvas
+        <uwp:SKXamlCanvas
             Name="Container"
             Grid.Column="0"
             Grid.Row="1"
             HorizontalAlignment="Center"
-            VerticalAlignment="Center"
             Margin="245,0"
             Height="320"
             Width="640"
-            Background="Aqua"
-            >
-            <Rectangle
-                Name="Target"
-                Fill="#FF0000"
-                Stroke="Black"
-                StrokeThickness="0"
-                Height="40"
-                Width="40" />
-        </Canvas>
+            PaintSurface="Canvas_OnPaintSurface"
+            />
         <Button
             Name="buttonClear"
             Foreground="White"
             Width="100"
-            Height="100">clear</Button>
+            Height="100"
+            Click="ButtonClear_OnClick"
+            >clear</Button>
         <TextBox
             Name="eventLog"
             Grid.Column="1"
@@ -63,3 +57,4 @@
             Grid.ColumnSpan="2" />
     </Grid>
 </Page>
+
