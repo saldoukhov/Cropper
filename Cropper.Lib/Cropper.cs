@@ -7,16 +7,21 @@ namespace Cropper.Lib
 {
     internal class CropCalculator
     {
-        internal static IObservable<SKRect> SelectRectangle(IObservable<CropHelper.MouseEvent> mouseEvents)
+        internal static IObservable<SKRect> SelectRectangle(SKSize canvasSize, IObservable<CropHelper.MouseEvent> mouseEvents)
         {
             return Observable.Create<SKRect>(observer =>
             {
-                var dropCoords = new SKRect(20, 20, 120, 120);
+                // init base size for cropping region
+                var dropCoords = SKRect.Create(canvasSize);
+                dropCoords.Inflate(-canvasSize.Width / 4, -canvasSize.Height / 4);
+                var minDimension = Math.Min(dropCoords.Width, dropCoords.Height);
+                var cornerMargin = minDimension / 10;
+                dropCoords = dropCoords.AspectFit(new SKSize(minDimension, minDimension));
                 observer.OnNext(dropCoords);
 
                 var dragStarts = mouseEvents
                     .Where(x => x.EventType == CropHelper.MouseEventType.Press)
-                    .Select(x => TestHitPoint(dropCoords, x.Coords))
+                    .Select(x => TestHitPoint(dropCoords, x.Coords, cornerMargin))
                     .Where(x => x != null);
                 var releases = mouseEvents
                     .Where(x => x.EventType == CropHelper.MouseEventType.Release)
@@ -42,24 +47,24 @@ namespace Cropper.Lib
             });
         }
 
-        static HitPoint TestHitPoint(SKRect target, SKPoint coords)
+        static HitPoint TestHitPoint(SKRect target, SKPoint coords, float margin)
         {
-            if (WithinCorner(new SKPoint(target.Left, target.Top), coords))
+            if (WithinCorner(new SKPoint(target.Left, target.Top), coords, margin))
                 return new HitPoint(DragType.TopLeft, coords);
-            if (WithinCorner(new SKPoint(target.Left, target.Bottom), coords))
+            if (WithinCorner(new SKPoint(target.Left, target.Bottom), coords, margin))
                 return new HitPoint(DragType.BottomLeft, coords);
-            if (WithinCorner(new SKPoint(target.Right, target.Top), coords))
+            if (WithinCorner(new SKPoint(target.Right, target.Top), coords, margin))
                 return new HitPoint(DragType.TopRight, coords);
-            if (WithinCorner(new SKPoint(target.Right, target.Bottom), coords))
+            if (WithinCorner(new SKPoint(target.Right, target.Bottom), coords, margin))
                 return new HitPoint(DragType.BottomRight, coords);
             return target.Contains(coords)
                 ? new HitPoint(DragType.Drag, coords)
                 : null;
         }
 
-        static bool WithinCorner(SKPoint target, SKPoint coords)
+        static bool WithinCorner(SKPoint target, SKPoint coords, float margin)
         {
-            return Math.Abs(coords.X - target.X) < 10 && Math.Abs(coords.Y - target.Y) < 10;
+            return Math.Abs(coords.X - target.X) < margin && Math.Abs(coords.Y - target.Y) < margin;
         }
 
         enum DragType
@@ -148,14 +153,16 @@ namespace Cropper.Lib
             {
                 Color = new SKColor(20, 20, 20)
             });
+            canvas.Flush();
         }
 
         public static IObservable<SKRect> CropImage(
+            SKSize canvasSize,
             IObservable<MouseEvent> mouseEvents,
             Func<IObservable<SKCanvas>> canvasSelector)
         {
             return CropCalculator
-                .SelectRectangle(mouseEvents)
+                .SelectRectangle(canvasSize, mouseEvents)
                 .Select(rect => canvasSelector()
                     .Do(canvas => DrawCropArea(rect, canvas))
                     .Select(_ => rect))

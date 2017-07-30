@@ -5,7 +5,9 @@ VisualStudioVersion = 15.0.26430.16
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cropper", "Cropper\Cropper.csproj", "{570F9D4E-908F-4D51-AA95-44BA8D62F865}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cropper.Lib", "Cropper.Lib\Cropper.Lib.csproj", "{5C90D19C-1E18-4D45-9C93-4DED637DA210}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cropper.Lib", "Cropper.Lib\Cropper.Lib.csproj", "{5C90D19C-1E18-4D45-9C93-4DED637DA210}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cropper.Droid", "Cropper.Droid\Cropper.Droid.csproj", "{6786919C-007D-4DB9-9E0B-699E2EEC3CDB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -55,6 +57,30 @@ Global
 		{5C90D19C-1E18-4D45-9C93-4DED637DA210}.Release|x64.Build.0 = Release|Any CPU
 		{5C90D19C-1E18-4D45-9C93-4DED637DA210}.Release|x86.ActiveCfg = Release|Any CPU
 		{5C90D19C-1E18-4D45-9C93-4DED637DA210}.Release|x86.Build.0 = Release|Any CPU
+		{6786919C-007D-4DB9-9E0B-699E2EEC3CDB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6786919C-007D-4DB9-9E0B-699E2EEC3CDB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6786919C-007D-4DB9-9E0B-699E2EEC3CDB}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{6786919C-007D-4DB9-9E0B-699E2EEC3CDB}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{6786919C-007D-4DB9-9E0B-699E2EEC3CDB}.Debug|ARM.Build.0 = Debug|Any CPU
+		{6786919C-007D-4DB9-9E0B-699E2EEC3CDB}.Debug|ARM.Deploy.0 = Debug|Any CPU
+		{6786919C-007D-4DB9-9E0B-699E2EEC3CDB}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{6786919C-007D-4DB9-9E0B-699E2EEC3CDB}.Debug|x64.Build.0 = Debug|Any CPU
+		{6786919C-007D-4DB9-9E0B-699E2EEC3CDB}.Debug|x64.Deploy.0 = Debug|Any CPU
+		{6786919C-007D-4DB9-9E0B-699E2EEC3CDB}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{6786919C-007D-4DB9-9E0B-699E2EEC3CDB}.Debug|x86.Build.0 = Debug|Any CPU
+		{6786919C-007D-4DB9-9E0B-699E2EEC3CDB}.Debug|x86.Deploy.0 = Debug|Any CPU
+		{6786919C-007D-4DB9-9E0B-699E2EEC3CDB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6786919C-007D-4DB9-9E0B-699E2EEC3CDB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6786919C-007D-4DB9-9E0B-699E2EEC3CDB}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{6786919C-007D-4DB9-9E0B-699E2EEC3CDB}.Release|ARM.ActiveCfg = Release|Any CPU
+		{6786919C-007D-4DB9-9E0B-699E2EEC3CDB}.Release|ARM.Build.0 = Release|Any CPU
+		{6786919C-007D-4DB9-9E0B-699E2EEC3CDB}.Release|ARM.Deploy.0 = Release|Any CPU
+		{6786919C-007D-4DB9-9E0B-699E2EEC3CDB}.Release|x64.ActiveCfg = Release|Any CPU
+		{6786919C-007D-4DB9-9E0B-699E2EEC3CDB}.Release|x64.Build.0 = Release|Any CPU
+		{6786919C-007D-4DB9-9E0B-699E2EEC3CDB}.Release|x64.Deploy.0 = Release|Any CPU
+		{6786919C-007D-4DB9-9E0B-699E2EEC3CDB}.Release|x86.ActiveCfg = Release|Any CPU
+		{6786919C-007D-4DB9-9E0B-699E2EEC3CDB}.Release|x86.Build.0 = Release|Any CPU
+		{6786919C-007D-4DB9-9E0B-699E2EEC3CDB}.Release|x86.Deploy.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
