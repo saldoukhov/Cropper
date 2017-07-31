@@ -26,6 +26,7 @@ namespace Cropper.Droid
         readonly Subject<CropHelper.MouseEvent> whenMouseEvent = new Subject<CropHelper.MouseEvent>();
         SKCanvasView canvasView;
         IDisposable cropSub;
+        SKBitmap img;
 
         protected override void OnCreate(Bundle bundle)
         {
@@ -37,6 +38,7 @@ namespace Cropper.Droid
             canvasView.PaintSurface += OnPaintSurface;
             canvasView.Touch += CanvasViewTouch;
             canvasView.LayoutChange += CanvasView_LayoutChange;
+            img = SKBitmap.Decode(Assets.Open("kitten.jpg"));
         }
 
         void CanvasView_LayoutChange(object sender, View.LayoutChangeEventArgs e)
@@ -46,6 +48,7 @@ namespace Cropper.Droid
             cropSub = CropHelper
                 .CropImage(
                     canvasView.CanvasSize,
+                    img,
                     whenMouseEvent,
                     () =>
                     {

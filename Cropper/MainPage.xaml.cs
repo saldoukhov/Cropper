@@ -14,6 +14,7 @@ namespace Cropper
         readonly Subject<SKCanvas> whenNeedPaint = new Subject<SKCanvas>();
         readonly IObservable<CropHelper.MouseEvent> mouseEvents;
         IDisposable cropSub;
+        SKBitmap img;
 
         public MainPage()
         {
@@ -37,6 +38,8 @@ namespace Cropper
 
             mouseEvents = Observable.Merge(presses, releases, moves);
             Container.LayoutUpdated += Container_LayoutUpdated;
+
+            img = SKBitmap.Decode("kitten.jpg");
         }
 
         void Container_LayoutUpdated(object sender, object e)
@@ -44,7 +47,9 @@ namespace Cropper
             if (!Container.CanvasSize.IsEmpty && cropSub == null)
             {
                 cropSub = CropHelper
-                    .CropImage(Container.CanvasSize,
+                    .CropImage(
+                        Container.CanvasSize,
+                        img,
                         mouseEvents,
                         () =>
                         {

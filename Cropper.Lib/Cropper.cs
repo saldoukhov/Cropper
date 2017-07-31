@@ -7,13 +7,14 @@ namespace Cropper.Lib
 {
     internal class CropCalculator
     {
-        internal static IObservable<SKRect> SelectRectangle(SKSize canvasSize, IObservable<CropHelper.MouseEvent> mouseEvents)
+        internal static IObservable<SKRect> SelectRectangle(SKRect imageRegion,
+            IObservable<CropHelper.MouseEvent> mouseEvents)
         {
             return Observable.Create<SKRect>(observer =>
             {
                 // init base size for cropping region
-                var dropCoords = SKRect.Create(canvasSize);
-                dropCoords.Inflate(-canvasSize.Width / 4, -canvasSize.Height / 4);
+                var dropCoords = imageRegion;
+                dropCoords.Inflate(-imageRegion.Width / 4, -imageRegion.Height / 4);
                 var minDimension = Math.Min(dropCoords.Width, dropCoords.Height);
                 var cornerMargin = minDimension / 10;
                 dropCoords = dropCoords.AspectFit(new SKSize(minDimension, minDimension));
@@ -33,7 +34,7 @@ namespace Cropper.Lib
                 var drags = dragStarts
                     .SelectMany(x => moves
                         .TakeUntil(releases)
-                        .Select(y => NewCoords(dropCoords, new Drag(x, y))))
+                        .Select(y => NewCoords(dropCoords, imageRegion, new Drag(x, y))))
                     .DistinctUntilChanged();
 
                 var dropSub = drags
@@ -100,24 +101,36 @@ namespace Cropper.Lib
             }
         }
 
-        static SKRect NewCoords(SKRect current, Drag drag)
+        static SKRect NewCoords(SKRect current, SKRect limits, Drag drag)
         {
             float diag;
             switch (drag.Start.DragType)
             {
                 case DragType.Drag:
-                    return SKRect.Create(current.Location + drag.Delta, current.Size);
+                    var newRect = SKRect.Create(current.Location + drag.Delta, current.Size);
+                    newRect.Offset(
+                        Math.Max(limits.Left - newRect.Left, 0) - Math.Max(newRect.Right - limits.Right, 0),
+                        Math.Max(limits.Top - newRect.Top, 0) - Math.Max(newRect.Bottom - limits.Bottom, 0));
+                    return newRect;
                 case DragType.TopLeft:
                     diag = Math.Max(-drag.Delta.X, -drag.Delta.Y);
+                    diag = Math.Min(diag, current.Left - limits.Left);
+                    diag = Math.Min(diag, current.Top - limits.Top);
                     return new SKRect(current.Left - diag, current.Top - diag, current.Right, current.Bottom);
                 case DragType.BottomLeft:
                     diag = Math.Max(-drag.Delta.X, drag.Delta.Y);
+                    diag = Math.Min(diag, current.Left - limits.Left);
+                    diag = Math.Min(diag, limits.Bottom - current.Bottom);
                     return new SKRect(current.Left - diag, current.Top, current.Right, current.Bottom + diag);
                 case DragType.TopRight:
                     diag = Math.Max(drag.Delta.X, -drag.Delta.Y);
+                    diag = Math.Min(diag, limits.Right - current.Right);
+                    diag = Math.Min(diag, current.Top - limits.Top);
                     return new SKRect(current.Left, current.Top - diag, current.Right + diag, current.Bottom);
                 case DragType.BottomRight:
                     diag = Math.Max(drag.Delta.X, drag.Delta.Y);
+                    diag = Math.Min(diag, limits.Right - current.Right);
+                    diag = Math.Min(diag, limits.Bottom - current.Bottom);
                     return new SKRect(current.Left, current.Top, current.Right + diag, current.Bottom + diag);
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -146,25 +159,30 @@ namespace Cropper.Lib
             }
         }
 
-        static void DrawCropArea(SKRect rect, SKCanvas canvas)
+        static void DrawCropArea(SKBitmap image, SKRect imageRect, SKRect rect, SKCanvas canvas)
         {
-            canvas.DrawColor(new SKColor(130, 130, 130));
+            canvas.DrawColor(SKColors.DimGray);
+            canvas.DrawBitmap(image, imageRect);
             canvas.DrawRect(rect, new SKPaint
             {
-                Color = new SKColor(20, 20, 20)
+                Color = SKColors.Black,
+                Style = SKPaintStyle.Stroke,
+                StrokeWidth = 1
             });
             canvas.Flush();
         }
 
         public static IObservable<SKRect> CropImage(
             SKSize canvasSize,
+            SKBitmap image,
             IObservable<MouseEvent> mouseEvents,
             Func<IObservable<SKCanvas>> canvasSelector)
         {
+            var imgFit = SKRect.Create(canvasSize).AspectFit(image.Info.Size);
             return CropCalculator
-                .SelectRectangle(canvasSize, mouseEvents)
+                .SelectRectangle(imgFit, mouseEvents)
                 .Select(rect => canvasSelector()
-                    .Do(canvas => DrawCropArea(rect, canvas))
+                    .Do(canvas => DrawCropArea(image, imgFit, rect, canvas))
                     .Select(_ => rect))
                 .Switch();
         }
