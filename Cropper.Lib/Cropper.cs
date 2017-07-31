@@ -167,7 +167,7 @@ namespace Cropper.Lib
             {
                 Color = SKColors.Black,
                 Style = SKPaintStyle.Stroke,
-                StrokeWidth = 1
+                StrokeWidth = 2
             });
             canvas.Flush();
         }
